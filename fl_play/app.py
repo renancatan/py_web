@@ -15,4 +15,7 @@ def get_beer():
         'foodpair': beerjson[0]['food_pairing'][0]
     }
     #print(beer)
+
     return render_template('index.html', beer=beer)
+
+
