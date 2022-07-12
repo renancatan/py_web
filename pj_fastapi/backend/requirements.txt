@@ -1,4 +1,11 @@
 fastapi
 uvicorn
-#for template  #new
+
+#for template
 jinja2
+
+#for static files
+aiofiles
+
+#for loading environment variables
+python-dotenv
