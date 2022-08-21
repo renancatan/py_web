@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}Video Membership{% endblock %}</title>
+
+</head>
+<body>
+    {% block content %}
+
+
+    <h1>Hello World</h1>
+
+    <p> {{ request.id }} {{ request.brand }} {{ request.availability_status }} {{ request.price }}</p>
+
+
+<div style='margin-bottom:15px;'>
+<p style='margin-bottom:2px;'>Campos:</p>
+    {% for items in request.items() %}
+     <li style='margin-bottom:2px;'><b>{{ items[0] }}</b>: {{ items[1] }}</li>
+
+    {% endfor %}
+
+
+</div>
+
+
+<div style='margin-bottom:15px;'>
+<p style='margin-bottom:2px;'>Campos:</p>
+    {% for k, v in request.items() %}
+     <li style='margin-bottom:2px;'><b>{{ k }}</b>: {{ v }}</li>
+     {% endfor %}
+</div>
+
+{% endblock %}
+</body>
+
+</html>
