@@ -2,7 +2,7 @@ import json
 # import uvicorn
 from fastapi import FastAPI, Request, Form
 from scrapes.scrape_music import scrape
-from scrapes.scrape_corner import C_t3
+from scrapes.scrape_corner import ScrapeCorner
 from apis.general_pages.route_homepage import general_pages_router
 
 from fastapi.templating import Jinja2Templates
@@ -19,7 +19,6 @@ templates = Jinja2Templates(directory=str(TEMPLATE_DIR))
 
 # if __name__ == '__main__':
 data = scrape()
-data_t3 = C_t3()
 
 
 # context = {
@@ -35,10 +34,19 @@ def include_router(app):
     return app.include_router(general_pages_router)
 
 
-@app.get("/scrape", status_code=200)
-async def scraper():
+# @app.get("/scrape", status_code=200)
+# async def scraper():
+#     context = {
+#         "request": data_t3.scraper_t3()[0]
+#     }
+#     print(context)
+#     return templates.TemplateResponse("general_pages/homepage.html", context)
+
+@app.get("/scrape")
+async def scraper(request: Request):
     context = {
-        "request": data_t3.scraper_t3()[0]
+        "request": request,
+        "data": ScrapeCorner
     }
     print(context)
     return templates.TemplateResponse("general_pages/homepage.html", context)

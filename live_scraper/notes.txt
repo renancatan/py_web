@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>{% block title %}my title{% endblock %}</title>
+    <style>
+  h1  {
+    color: #009;
+    font-size: 1em;
+    margin-bottom: .3em;
+    text-align: center;
+    text-decoration: underline;
+  }
+
+  table {
+    margin: .3em;
+    width: 290px;
+  }
+
+  th {
+    padding: .2em;
+  }
+
+  td {
+    background-color: #ffc;
+    border: 1px solid #900;
+    padding-left: .5em;
+    padding-right: .5em;
+  }
+
+  #trHeader {
+    color: #900;
+    text-decoration: underline;
+  }
+
+  .centerCell {
+    text-align: center;
+  }
+</style>
+
+</head>
+<body>
+    {% block content %}
+
+    <h1>Hello World</h1>
+
+
+<div style='margin-bottom:15px;'>
+<p style='margin-bottom:2px;'>Campos:</p>
+    {% for items in data %}
+
+    <li style='margin-bottom:2px;'><b>{{ items.keys() }}</b>: {{ items.values() }}</li>
+
+        {% for k, v in items.items() %}
+        <li style='margin-bottom:2px;'><b>{{ k }}</b>: {{ v }}</li>
+        {% endfor %}
+    {% endfor %}
+
+
+</div>
+
+{% endblock %}
+</body>
+
+</html>
