@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Listings</title>
+</head>
+<body>
+    <h1>Job Listings</h1>
+    {% csrf_token %}
+    {% for field in form %}
+    <div class="form-group{% if field.errors %} has-error{% endif %}">
+        <label class="control-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+    </div>
+    {% endfor %}
+    <a href="{% url 'job_list' %}">Back to Job Listings</a>   <!-- REDIRECT: list jobs -->
+</body>
+</html>

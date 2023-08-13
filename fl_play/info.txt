@@ -1,4 +1,0 @@
---to access web env easily and see flask local changes, go to the terminal and type in your right /path/:
-
-export FLASK_ENV=developement
-flask run

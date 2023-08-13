@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Listings</title>
+</head>
+<body>
+    <h1>Job Listings <a href="{% url 'create_job' %}">Create Job</a></h1> <!-- REDIRECT: Create job -->
+
+    <ul>
+        {% for job in jobs %}
+            <li>
+                <h2>{{ job.title }}</h2>
+                <p>Company: {{ job.company }}</p>
+                <p>Location: {{ job.location }}</p>
+                <p>Posted on: {{ job.posted_date }}</p>
+                <p>Description: {{ job.description }}</p>
+                <p>Salary ranges: {{ job.min_salary }}K to {{ job.max_salary }}K</p>
+                <a href="{% url 'edit_job' job.id %}">Edit</a> <!-- REDIRECT: Edit link for this job -->
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

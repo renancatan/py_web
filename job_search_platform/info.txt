@@ -1,0 +1,40 @@
+OS=(WINDOWS); CLI=GIT-BASH
+
+// Create and activate the virtual env
+python -m venv venv -> or python3.8.8 -m venv venv
+source venv/scripts/activate
+
+// Take the necessary packages, after use it and add the ones you need locking its versions
+pip freeze > requirements.txt
+pip install -r requirements.txt
+
+// JUST ONCE TO START THE PROJECT // WHERE? on the project's root
+django-admin startproject jobsearch .
+ - Hierarchy should be like this:
+        job_search_platform/ [ROOT DIR]
+            manage.py
+            jobsearch/
+                __init__.py
+                settings.py
+                urls.py
+                asgi.py
+                wsgi.py
+            venv/
+
+// START THE SERVER // WHERE? on the project's root
+python manage.py runserver
+
+// CREATE THE FIRST APP
+python manage.py startapp jobs
+
+// Create your models (SQL ORM) at yourApp/models.py -> then run migrations to include your new model
+python manage.py makemigrations jobs
+python manage.py migrate
+
+// Accessing the shell of manage.py
+python manage.py shell
+adding manually a job:
+
+from jobs.models import Job
+job1 = Job(title="Software Engineer", company="Tech Corp", location="New York", description="Developing software...")
+job1.save()

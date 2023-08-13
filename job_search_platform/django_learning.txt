@@ -1,0 +1,380 @@
+PYTHON: DJANGO STUDY
+
+Models
+What are Django models, and how are they used in your project?
+Can you describe how you would add a new field to your Job model, such as a salary range? What steps would you need to take?
+
+- Models SECTION
+1) Django models are the structure of the sql table;view that we are making CRUD services,
+in our project they are being used as ORM (object relational mapping) which eases and concisely replace 
+the needs for sql raw data operations as well helping between changes with different database types like sql server, mysql, postgres, sqlite, etc,
+providing tons of benefits like providing security, avoiding injections and also integrates well with django as it is the standard way to use it,
+without even need to say about the information we can encounter from community and courses related to these good practices.
+
+2) 
+I will add these fieldsat the models.py inside my directory app: "jobs" ->     
+	min_salary = models.FloatField(null=True)
+	max_salary = models.FloatField(null=True)
+- If we are talking about dummy data, I'll probably will have to use the CLI with the django server running: python manage.py shell
+- Then add the job as the example:
+from jobs.models import Job
+job = Job(title="data analyst", company="Tech Corp", location="New York", description="Developing software...", min_salary=3.200, max_salary=5.200)
+job.save()
+
+a) Then modify the html template "job_list.html" 
+<p>Salary ranges: {{ job.min_salary }}K to {{ job.max_salary }}K</p>
+I also added a validation for min_salary, but not for the max yet, you're gonna see in the next to explanation for "forms"
+
+b) Edit the forms.py file, such as:
+fields = ['title', 'company', 'location', 'description', 'min_salary', 'max_salary']
+
+And as the files: views, urls and template[html] are properly formatted then the model should work properly..
+If it is not a dummy data, what will happen in a near future, I will have to insert the data from scrapes into the 
+local file first (in our case as we are using sqLITE file)
+
+- Forms SECTION
+What is the purpose of using Django forms, and why did we create a JobForm class for editing jobs?
+How would you customize the form to display a specific set of fields or to add custom validation?
+
+1) Django forms helps us with built-in validations which helps us to check if the data submitted by the user is valid, 
+It saves a lot of time because we dont need to write down our own logic and valiations. 
+And as this is a built-in feature, we have an extra layer of security, ensuring that the user and client are protected. 
+For example, with the form of editing jobs, how much time it saved us from coding and as well minimizing the maintenance time of a larger section of code.
+They are also easy to use and can be reusable.
+Cons: not as flexible as custom forms and can be hard to deal with when dealing with very complex forms.
+
+For the class case, primarely to editing jobs in an easy way, but going further:
+I dont think I cant answer exactly why we specifically created a class for editing jobs, because we could also make a function to deal with it,
+however class has its benefits such as: Simplification, DRY, Validation, Security against CSRF attacks, ease of rendering and reusability
+cons: Less Flexibility, complexity when the user is new to classes (my case) i know something, but daily i work basically with functions, learning curve, some can say overhead but i dont think it can really be a performance issue
+To be honest, i think i would just got all the pro/cons if i make projects using either ways oriented to (function/class), but i wont do it.
+
+2) Customizing the forms and adding custom validation:
+	a)
+	I have created a validation in the forms.py file "clean_min_salary" for when the salary is lower than one thousand dollars,
+	also have added some widgets for test purposes only:
+	
+	class JobForm(forms.ModelForm):
+    error_css_field = 'error-field'
+    required_css_class = 'required-field'
+    title = forms.CharField(widget=forms.TextInput(attrs={"class": "form-control", "placeholder": "job title"}))
+    description = forms.CharField(widget=forms.TextInput(attrs={"rows": "10"}))
+
+    class Meta:
+        model = Job
+        fields = ['title', 'company', 'location', 'description', 'min_salary', 'max_salary']
+
+    def clean_min_salary(self):
+        min_salary = self.cleaned_data.get('min_salary')
+        if min_salary <= 1000:
+            raise ValidationError("Salary too low")
+        return min_salary
+	
+	
+	b)
+	I added in html file this part, what this does (please correct me if im wrong) 
+	- Create a tag message with success/error/etc here: {% for message in messages %} <li {% if message.tags....
+	- {% csrf_token %} for post request was already in the code
+	- {% for field in form %} here the field iterator is taking the form key from django function and retrieving its object as its
+	  function variables are created as dictionary [key/pair] and iterating over it, if we have an issue/validation with the form 
+	   <div class="form-group{% if field.errors %} -> creates a div class for form-group and has-error="myError"
+	   then renders the errors stored in {{ field }} then it is going to iterate in the error and feed the p tag class "help-block" displaying the error
+	   
+
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="form-group{% if field.errors %} has-error{% endif %}">
+            <label class="control-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% for error in field.errors %}
+                <p class="help-block">My Error: {{ error }}</p>
+            {% endfor %}
+        </div>
+        {% endfor %}
+	
+	c) I modified the edit job function in views.py file to check my error messages:
+	def edit_job(request, job_id):
+    print("Processing edit_job view")  # This will print every time the view is accessed
+    job = get_object_or_404(Job, pk=job_id)
+    if request.method == 'POST':
+        print("Received a POST request")  # This will print every time a POST request is received
+        form = JobForm(request.POST, instance=job)
+        if form.is_valid():
+            form.save()
+            print("Form is valid, job saved")  # This will print every time the form is valid and the job is saved
+            messages.success(request, 'Job saved successfully')  # displayed for the user
+            return redirect('job_list')
+        else:
+            messages.error(request, 'There was an error saving the job')
+            print("Form is not valid, errors:", form.errors)  # This will print every time the form is not valid
+    else:
+        form = JobForm(instance=job)
+    return render(request, 'jobs/edit_job.html', {'form': form})
+	
+	AND in the front end when editing/creating a job if trying to add a min_salary lower than 1000 then this error will raise:
+	raise ValidationError("Salary too low"), with this message being displayed at the front-end for the user, as well the success/error of the tags
+	
+Further explanation:
+{% if messages %}: The messages framework in Django allows you to temporarily store simple messages for the user between requests. This line checks if there are any messages stored. If there are, then the code within this block is executed.
+
+{% if message.tags %}: This line checks if the current message has any tags associated with it. Message tags are a way of categorizing messages by adding a label (or 'tag') to them. If tags exist, it adds them as a class to the list item. This can be helpful for applying CSS styles depending on the type of message (e.g. success, error, info).
+
+{% if field.errors %}: Django form fields have an errors attribute where form validation errors are stored. This line checks if the current form field has any errors. If it does, the has-error CSS class is added to the form group. This allows you to style the form group to indicate an error (e.g. by changing the border color to red).
+
+{% for error in field.errors %}: This isn't an if condition, but it's related. If there are errors on the form field, this line iterates over each error and displays it as a paragraph in the form. This gives the user feedback about what needs to be fixed in the form.
+
+The message.tags in {% if message.tags %} refers to a property of the message object which is part of Django's messaging framework. Each message can have a tag associated with it that indicates the level of the message. The levels can be 'DEBUG', 'INFO', 'SUCCESS', 'WARNING', 'ERROR' based on the type of message you want to show to the user. This tag is useful for applying different styles to different types of messages (e.g., success messages might be green, error messages might be red).
+In this example, messages.success(request, 'Job saved successfully') creates a new message with the text 'Job saved successfully' and a tag of 'success'. Similarly, messages.error(request, 'There was an error saving the job') creates a new message with the text 'There was an error saving the job' and a tag of 'error'.
+
+Then, in your HTML, {% if message.tags %} checks if the current message has a tag (which it will, since we added one when we created the message), and if it does, it adds the tag as a class to the list item. This would result in HTML like <li class="success">Job saved successfully</li> or <li class="error">There was an error saving the job</li>. You could then use CSS to style these classes to make success messages green and error messages red, for example.
+
+
+-- Obs: I think it is enough writing for two questions.
+		Here im answering just the "models" and "forms" questions, after you correct/check them, i will proceed and finish the other two.
+
+
+-- EXTRA COMMENTS: I WANT YOU TO BE VERY RESTRICT WITH MY LEARNING, IF THERE'S SOMETHING SLIGHTLY WRONG OR DUBIOUS I WANT YOU TO POINT IT OUT AND DISPLAY THE FIX VERSION OF WHAT I WROTE.
+Another thing, I realized that the view.py file could be the most challenging to write down, next time i want to try to write it when we add new logics/functions to it 
+
+
+>> CONTINUE.. 
+
+- Views SECTION
+How does the edit view (edit_job) function work? Can you explain the difference between handling a GET request and a POST request in this view?
+What would you need to change if you wanted to create a similar view for viewing job details, but without allowing edits?
+
+
+1） edit_job function:
+def edit_job(request, job_id): 
+# it receives two parameters "request" it is a http request 
+# and "job_id" this is an integer representing the primary key in the table,
+# The job_id in the edit_job function comes from the URL pattern path('edit/<int:job_id>/', views.edit_job, name='edit_job'),
+# django will expect an integer in the URL at that position and pass it to 'edit_job' view function as the job_id argument
+
+    print("Processing edit_job view")  # This will print every time the view is accessed
+    job = get_object_or_404(Job, pk=job_id)  # Here we are accessing the instanciated object from models,
+	when pk=job_id from sql table exists, then retrieve the job data; if the job doesnt exists it will raise a 404 error
+    if request.method == 'POST':  # this has to be a post request method to the server in order to submit the form
+        print("Received a POST request")  # This will print every time a POST request is received
+		
+        form = JobForm(request.POST, instance=job)  
+        if form.is_valid():
+		    form.save()
+            print("Form is valid, job saved")  
+			# This will print every time the form is valid and the job is saved
+			# here JobForm instance is created using the post data and associating it with the job object
+			# if the form is valid, it saves the modifications to the database.
+
+            messages.success(request, 'Job saved successfully')  # displayed for the user
+            return redirect('job_list')  # after the form is saved it redirect the user to the jobs listed
+        else:
+            messages.error(request, 'There was an error saving the job')
+            print("Form is not valid, errors:", form.errors)  # This will print every time the form is not valid
+    else:
+        form = JobForm(instance=job)
+		# if the request is not post, it will create a GET request to the newly created 
+		# JobForm instance retrieving the data for that object as get request
+    return render(request, 'jobs/edit_job.html', {'form': form})
+	# Then a render function is created calling an HttpResponse using the 'jobs/edit_job.html' template and the context with
+	#  the "form" that received the instance of JobForm retrieving the object, this response is sent back to the client
+	
+	>> further explanation <<
+	request: This is the HTTP request object that triggered this view. 
+	Django creates this object for each request it receives, 
+	and it contains all the information about that request.
+
+	'jobs/edit_job.html': This is the template file Django should use to generate the HttpResponse. 
+	Django will look for this file in all the directories specified in the TEMPLATES setting in your settings file. 
+	Usually this includes a templates directory in each of your installed apps.
+
+	{'form': form}: This is the context for the template. It's a dictionary where the keys are the names you 
+	want to use in your template, and the values are the actual Python objects you want to use. 
+	Here you're passing one variable, form, into your template. In your template, you can use form to refer to the 
+	JobForm instance created in your view.
+	
+2) Differences between request: post/get in this context of edit_job:
+
+The post request will just post data to update the jobs when submitting the form,
+while the get will just retrieve the data and not update it, that's why the "save()" method to the database, that being said:
+POST request is used to submit data to be processed by the server, when the view receives a post request it takes the submitted
+data in the form and creates a JobForm instance form = JobForm(request.POST, instance=job), validates and saves it to the database, and redirect the user to the job_list page 
+if not valid the error will raise.
+is only used when we have a post request, in this case the post will update the data for the database that the user is edited when submitted the form.
+The get will retrieve only the data in the instanciated object form = JobForm(instance=job)
+
+3) In order to create a similar view for viewing job details, but without allowing edits:
+- Views
+Ok I made two versions of functions, either will work:
+a) The downfall of this one is it has many resources without needing, and more complex for a simple task
+def job_listing(request, job_id):
+    job = get_object_or_404(Job, pk=job_id)
+    if request.method == 'POST':
+        print("Received a POST request")  # This will print every time a POST request is received
+        form = JobForm(request.POST, instance=job)
+        if form.is_valid():
+            return redirect('job_list')
+
+        else:
+            print("Form is not valid, errors:", form.errors)  # This will print every time the form is not valid
+    else:
+        form = JobForm(instance=job)
+
+    return render(request, 'jobs/job_listing.html', {'form': form})
+	
+b) This one is much simple, with only the needed code.
+def job_listing(request, job_id):
+    job = get_object_or_404(Job, pk=job_id)
+    form = JobForm(instance=job)
+    if form.is_valid():
+        return redirect('job_list')
+    else:
+        print("Form is not valid, errors:", form.errors)
+    return render(request, 'jobs/job_listing.html', {'form': form})
+
+- URLS:
+Here I just added the new path for job_listing which will be consumed by views and the integer id 
+will be consumed as primary key in the function job_listing where pk=job_id
+path('listing/<int:job_id>/', views.job_listing, name='job_listing'),
+
+Templates
+
+Here probably the csrf_token is not necessary, as i dont need to "post" a form to the server anymore, 
+as i removed the tag <form> and the button to submit the form
+Inside <body> tag:
+    <h1>Job Listings</h1>
+    {% csrf_token %}
+    {% for field in form %}
+    <div class="form-group{% if field.errors %} has-error{% endif %}">
+        <label class="control-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+    </div>
+    {% endfor %}
+    <a href="{% url 'job_list' %}">Back to Job Listings</a>   <!-- REDIRECT: list jobs -->
+</body>..
+
+
+General doubts:
+in this b) i tried to use form = JobForm(request.GET, instance=job) 
+"i understand that without passing post as argument, then it knows it is a get request, but why it didnt work? because i like explicit things.
+
+- Templates SECTION
+
+1) a) Why do we use templates in Django, b) and how did we use them in the job listing and editing pages?
+2) How would you modify the template to add a new section or to style it using CSS?
+
+1) a) Templates are used to display data in the front-end, without them would be impossible to display and organize data and structures
+for the client, as well it provide interfaces "UI" for logins, forms, submits to database, post to django API server, etc.
+b) We use them displaying fields from our -> Models -> forms/views which in the case of edit job, we provide an option to submit
+the data of the template here <form method="post">..  <button type="submit">Edit</button> when the user clicks into "Edit" 
+of course, after editing it, then it triggers our forms validation and if "ok" at the code side "is_valid()" then it .save() 
+updating the data at the database.
+And other stuff like we iterate over the fields, in this case our "form" variable is a dictionary for django pair: (key/value),
+and as object, we can access its fields, so we can iterate over them retrieving and displaying its values, as well getting errors, tags[Success,Error, etc];
+
+2) I added a new section called "create job", as we just have the list and edit options, but either are for the ones that were already created.
+For this I modified: [forms, views, templates(list job and create job were modified), urls]
+
+forms: I created a separated class for handling the create job function, it inherits from "JobForm" and overrides its fields
+class CreateJobForm(JobForm):
+    class Meta(JobForm.Meta):  # Inheriting the Meta class from JobForm
+        fields = ['title', 'company', 'location']  # Only these fields will be included
+
+    def __init__(self, *args, **kwargs):
+        super(CreateJobForm, self).__init__(*args, **kwargs)
+        self.fields['title'].required = True
+        self.fields['company'].required = True
+        self.fields['location'].required = True
+
+
+views: I made this function to create a job, as you can see I have changed the instanciated form for CreateJobForm:
+In this case I don't need the pk=job_id argument from the function parameter or instance=.. or even /<int:job_id>/ in urls.py path, as im not "listing" the creation, it is going to be just a separated button.
+
+def create_job(request):
+    print("Processing create_job view")  # This will print every time the view is accessed
+    if request.method == 'POST':
+        print("Received a POST request")  # This will print every time a POST request is received
+        form = CreateJobForm(request.POST)  # >> changing job form <<
+        if form.is_valid():
+            form.save()
+            print("Form is valid, job saved")  # This will print every time the form is valid and the job is saved
+            messages.success(request, 'Job created successfully')  # displayed for the user
+            return redirect('job_list')
+        else:
+            messages.error(request, 'There was an error creating the job')
+            print("Form is not valid, errors:", form.errors)  # This will print every time the form is not valid
+    else:
+        form = CreateJobForm()  # No instance is passed, as this is for creating a new job
+    return render(request, 'jobs/create_job.html', {'form': form})
+	
+Templates: Actually it is really similar to 'edit_job'
+create_job.html:
+<!DOCTYPE..
+<body>
+    <h1>Create a New Job</h1>
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="form-group{% if field.errors %} has-error{% endif %}">
+            <label class="control-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% for error in field.errors %}
+                <p class="help-block">My Error: {{ error }}</p>
+            {% endfor %}
+        </div>
+        {% endfor %}
+        <button type="submit">Create</button>
+    </form>
+    <a href="{% url 'job_list' %}">Back to Job Listings</a>  <!-- REDIRECT: list jobs -->
+</body>
+</html>
+
+job_list.html: I just changed this line below
+    <h1>Job Listings <a href="{% url 'create_job' %}">Create Job</a></h1> <!-- REDIRECT: Create job -->
+
+Urls: As you can see, i get rid of /<int:job_id>/ as i dont need it anymore. 
+    path('create/', views.create_job, name='create_job').
+
+
+URL Patterns:
+1） What is the role of URL patterns in Django 
+2） How did we define the URL for the edit view?
+3) How would you add a new URL pattern for a new view, such as a view for viewing job details
+
+
+1) The role of urls patterns in django is to organize the interaction of views and templates, their paths and how 
+they should be accessed, for example via "id" e.g. /<int:job_id>/, standard path, etc and attribute a name for them
+in order to be possible to call and render them through django templates[html].
+
+2) path('edit/<int:job_id>/', views.edit_job, name='edit_job')
+here we have the path, where in django we will be using the route ..jobs/edit/job_id where the job_id is the pk of the table
+and at the same time the id of that specific product, for example ..jobs/edit/1 -> access the first inputed product (if it wasnt deleted later)
+the views.edit_job is calling from views the function "edit_job" and the name='edit_job' is simple attributing a name which we be called from templates.
+
+3) In this case I did it for a new view: 
+path('create/', views.create_job, name='create_job')
+As you can see, in this case I didnt add the job_id, as I don't intend to call something that already is inside our database,
+but i intend to create a new ententity(job) inside the database and it will receive its own id, for example if we have the job
+where pk=1,2,3.. the next created one will be 4,5..n
+
+
+
+
+
+
+
+	

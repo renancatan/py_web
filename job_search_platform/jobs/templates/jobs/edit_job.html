@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Job</title>
+</head>
+<body>
+    <h1>Create a New Job</h1>
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="form-group{% if field.errors %} has-error{% endif %}">
+            <label class="control-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% for error in field.errors %}
+                <p class="help-block">My Error: {{ error }}</p>
+            {% endfor %}
+        </div>
+        {% endfor %}
+        <button type="submit">Edit</button>
+    </form>
+    <a href="{% url 'job_list' %}">Back to Job Listings</a>  <!-- REDIRECT: list jobs -->
+</body>
+</html>
