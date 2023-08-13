@@ -1,0 +1,15 @@
+Models
+What are Django models, and how are they used in your project?
+Can you describe how you would add a new field to your Job model, such as a salary range? What steps would you need to take?
+Forms
+What is the purpose of using Django forms, and why did we create a JobForm class for editing jobs?
+How would you customize the form to display a specific set of fields or to add custom validation?
+Views
+How does the edit view (edit_job) function work? Can you explain the difference between handling a GET request and a POST request in this view?
+What would you need to change if you wanted to create a similar view for viewing job details, but without allowing edits?
+Templates
+Why do we use templates in Django, and how did we use them in the job listing and editing pages?
+How would you modify the template to add a new section or to style it using CSS?
+URL Patterns
+What is the role of URL patterns in Django, and how did we define the URL for the edit view?
+How would you add a new URL pattern for a new view, such as a view for viewing job details?
