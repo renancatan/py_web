@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Market Matcher - Products</title>
+</head>
+<body>
+    <h1>All Products</h1>
+
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Market</th>
+            <th>Price</th>
+        </tr>
+        {% for product in products %}
+        <tr>
+            <td>{{ product.id }}</td>
+            <td>{{ product.name }}</td>
+            <td>{{ product.market }}</td>
+            <td>${{ "%.2f"|format(product.price) }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

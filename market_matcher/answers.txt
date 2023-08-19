@@ -1,0 +1,108 @@
+1) a. Flask as a Microframework: Why is Flask referred to as a microframework b. How does this differ from other web frameworks?
+2) Flask Routing: Can you explain what routing is in Flask and how it's used in the above example?
+3) Debug Mode: What is the purpose of running Flask with debug=True, and what would change if it were set to False?
+
+1) a. Flask is called microframework because it comes with the bare minimum requirements to get an application running
+unlike other frameworks like django that comes with form validations, database abstraction layers, etc.
+Flask has only the essentials such as: routing, template engine and simple utilities.
+This of course provides pros and cons, for small projects and fast development flask might be ideal,
+but for larger projects it can have some downsides, it does not have a standard way of building like django or
+larger frameworks, and there are a lot of third-party libs that you must use in order to get on the right track
+
+2) Routing in flask refers to the way URLs are mapped to functions, which are responsible for getting client requests
+and returning responses. When a user access a URL that matches with a particular pattern, then the corresponding
+function is executed.
+The example of a router:
+
+app.route("/")  # accessing the root url pattern, in this case "home"
+def home():  # function will be triggered
+    return "hello, world"  # response returned from this function
+
+When a user navigates to the root URL "/" of the application, the 'home' function will be triggered and the string
+(in the case of this function) inside return will be displayed as response.
+
+
+3) When debug=True the server starts in debug mode, this has several effects:
+1. Code reloading:
+Changes in the code are automatically detected, and the server restarts, without having to do it manually.
+2. Error Messages:
+Detailed error messages are displayed in the browser when something goes wrong, aiding in debugging
+3. Interactive debugger:
+You can interactively explore the stack trace in the browser, allowing more in-depth investigation of errors.
+
+In production we should use debug=False, the debug=True is only for development purposes.
+Setting debug=False, on the other hand, turns off these features.
+Also in production if we let debug=False we could expose sensitive information or even open our application
+to security risks.
+
+Set the debug mode when running the app:
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
+4. SQLAlchemy in Flask:
+
+a. What is SQLAlchemy?
+SQLAlchemy is a popular SQL toolkit and Object-Relational Mapping (ORM) library for Python. It provides a full suite of
+patterns to express the SQL statement in Python code in a way that allows you to write SQL queries using Python objects.
+This includes basic CRUD (Create, Read, Update, Delete) operations, as well as more advanced uses.
+
+b. Why is it used in Flask?
+Flask, as a microframework, doesn't come with built-in database utilities. SQLAlchemy is used in Flask applications for
+a few reasons:
+Abstraction: SQLAlchemy provides an abstraction over different database systems. This means that you can switch between
+SQLite, PostgreSQL, MySQL, etc., with minimal changes to your code.
+Safety: It helps prevent SQL injection attacks, which are common web application vulnerabilities.
+Expressiveness: With ORM capabilities, you can represent database tables as Python classes and rows as objects.
+This is more intuitive and Pythonic for developers, and it aids in writing more maintainable code.
+Scalability: Even though SQLAlchemy adds an abstraction layer, it's efficient and scalable for a wide range of
+applications.
+
+5. Database Models:
+a. Can you explain how the Product class in the code represents a table in the database?
+Certainly. In SQLAlchemy, a model class represents a table in the database.
+The Product class in your code maps to a table named "product" (by default, SQLAlchemy uses a lowercase
+version of the class name for the table name).
+Each attribute of the class, such as id, name, market, and price, represents a column in that table.
+The type of each column (e.g., db.Integer, db.String(50)) and additional arguments (e.g., primary_key=True,
+nullable=False) define the properties and constraints of those columns.
+
+b. What would you need to do if you wanted to add a new field, such as a category for each product?
+To add a new field, say category, to the Product class/table:
+
+Add the new field to the model:
+category = db.Column(db.String(50))
+This defines a new column named "category" in the "product" table, which will store strings of up to 50 characters.
+Create a migration to update the database schema. If you're not already using a migration tool, you can use
+Flask-Migrate, an extension that handles SQLAlchemy database migrations for Flask applications. After setting up
+Flask-Migrate, you would run a command to detect changes and generate a migration script, then apply that migration
+to update the database.
+
+Alternatively, if you're in the early stages of development or don't have valuable data in your database,
+you can simply drop the old tables and recreate them. This is NOT recommended for production or any scenario where you
+have important data in your database. The code you provided (commented out) does this:
+
+with app.app_context():
+    db.create_all()
+This would create the tables based on the model definitions. If you were to uncomment and run this after adding the
+category column, it would attempt to create the tables anew (you'd lose existing data).
+
+Remember, if you're dealing with a production database or any database with valuable data,
+always backup your data before making changes to the schema.
+
+6.
+The line app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///market_matcher.db' sets the database URI (Uniform Resource
+Identifier) for the SQLAlchemy extension. The URI provides information about how to connect to a specific database.
+
+Breaking down the URI:
+sqlite is the type of the database.
+/// is the connection path.
+market_matcher.db is the name of the SQLite database file.
+So, in this particular case, you're configuring Flask and SQLAlchemy to use an SQLite database named market_matcher.db
+in the current directory.
+
+If you wanted to use a different database, such as PostgreSQL, you would need to change this URI to match PostgreSQL's
+format and provide the necessary details. Here's an example for a PostgreSQL database:
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://username:password@localhost:5432/mydatabase'

@@ -1,0 +1,15 @@
+1)
+    a. Flask as a Microframework: Why is Flask referred to as a microframework
+    b. How does this differ from other web frameworks?
+2) Flask Routing: Can you explain what routing is in Flask and how it's used in the above example?
+3) Debug Mode: What is the purpose of running Flask with debug=True, and what would change if it were set to False?
+
+
+4)
+    a. SQLAlchemy in Flask: What is SQLAlchemy
+    b. Why is it used in Flask?
+5)
+    a. Database Models: Can you explain how the Product class in the code represents a table in the database?
+    b. What would you need to do if you wanted to add a new field, such as a category for each product?
+6) Database URI: Explain the line app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///market_matcher.db'.
+   What would you need to change if you wanted to use a different database, such as PostgreSQL?

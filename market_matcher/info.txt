@@ -1,0 +1,132 @@
+1) install and activate the virtual venv (CHECK YOUR OS, as it might change):
+    a. python -m venv venv
+    b. source venv/scripts/activate
+
+2) Installing Flask: Inside the virtual environment, install Flask:
+
+- pip install flask
+
+Project Structure:
+project_root/
+├── app.py
+├── templates/
+├── static/
+
+app.py will contain the main application code.
+templates/ will store HTML templates.
+static/ will contain static files like CSS.
+
+insert this code in app.py:
+from flask import Flask
+
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return 'Hello, World!'
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
+3) Installing SQLAlchemy: Inside your virtual environment, install Flask-SQLAlchemy:
+
+- pip install flask-sqlalchemy
+
+    a.
+    Configuring the Database: In your app.py, you'll need to set up the database:
+
+    from flask import Flask
+    from flask_sqlalchemy import SQLAlchemy
+
+    app = Flask(__name__)
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///market_matcher.db'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+    db = SQLAlchemy(app)
+
+    This sets up an SQLite database file named market_matcher.db (which is my project name and in this case my root)
+
+    b. models.py:
+
+    from flask_sqlalchemy import SQLAlchemy
+
+    db = SQLAlchemy()
+
+    class Product(db.Model):
+        id = db.Column(db.Integer, primary_key=True)
+        name = db.Column(db.String(50), nullable=False)
+        market = db.Column(db.String(50), nullable=False)
+        price = db.Column(db.Float, nullable=False)
+
+    c. Creating the Database Tables: Run the following code once to create the table:
+
+    - db.create_all()
+
+4)
+You can add some sample data by creating Product objects and adding them to the database session.
+This can be done in app.py after creating the tables.
+
+with app.app_context():
+    db.create_all()  # This line creates the tables.
+
+    # Inserting dummy data
+    tomato = Product(name='Tomato', market='Market A', price=2.99)
+    tomato2 = Product(name='Tomato', market='Market A', price=3.50)
+    milk = Product(name='Milk', market='Market B', price=1.49)
+    milk2 = Product(name='Milk', market='Market C', price=2.49)
+
+    db.session.add(tomato)
+    db.session.add(milk)
+    db.session.add(tomato2)
+    db.session.add(milk2)
+    db.session.commit()
+
+5) To migrate new model
+a.
+# Add the migrations lib for flask:
+
+add in the requirements.txt file:
+- Flask-Migrate
+
+Run the CLI at the root directory:
+- pip install -r requirements.txt
+
+# Modify the app.py, adding the migrate lines
+from flask_migrate import Migrate
+
+db.init_app(app)  # already added
+migrate = Migrate(app, db)
+
+b.
+Initializing Migrations:
+Before making any migrations, you need to initialize the migrations directory:
+with the project already running, CLI at the project's root: python app.py
+run in the CLI: flask db init
+- Initialization: flask db init
+- Migration Creation: flask db migrate -m "some message"
+- Apply Migration: flask db upgrade
+
+This command initializes migrations for your project by creating a migrations folder which will house all of your
+migration scripts and the migration environment. Migration Creation: flask db migrate -m "some message"
+
+This command auto-generates a new migration based on the differences between your current database and the state defined
+by your models (in models.py). The -m option lets you attach a message to the migration to indicate what changes it
+contains, e.g., -m "Added category column to Product model".
+This doesn't apply any changes to the database yet; it just creates a script that describes the changes.
+Apply Migration: flask db upgrade
+
+This command applies the migrations to the database, effectively updating the database structure.
+Rollback (if needed): flask db downgrade
+
+If for some reason you need to undo the last migration, you can use the downgrade command.
+This is useful in cases where a migration may have caused issues, and you want to revert the database to its
+previous state.
+So, after running flask db init, your next steps should be:
+
+Run flask db migrate -m "initial migration" to generate the first migration script.
+Inspect the generated script in the migrations/versions folder to make sure it looks correct.
+Run flask db upgrade to apply the migration and update the database.
+Whenever you make further changes to your models, repeat steps 2 and 3 to keep your database schema in sync with your models.
+
+
