@@ -6,21 +6,53 @@
 <body>
     <h1>All Products</h1>
 
-    <table border="1">
+     <!-- Here goes the path for search, if search is performed inside /products route, then it has to
+     be replaced to /products -->
+    <form action="/search" method="get">
+        <input type="text" name="search" placeholder="Search for a product...">
+        <input type="submit" value="Search">
+    </form>
+
+    {% if search_performed %}
+    <h2>Matches: {{ matches_count }}</h2>
+    {% endif %}
+
+    <table border="4">
         <tr>
             <th>ID</th>
-            <th>Name</th>
+            <th>Category</th>
+            <th>Product</th>
+            <th>Brand</th>
             <th>Market</th>
             <th>Price</th>
+            <th>market_group</th>
         </tr>
         {% for product in products %}
         <tr>
             <td>{{ product.id }}</td>
-            <td>{{ product.name }}</td>
+            <td>{{ product.category }}</td>
+            <td>{{ product.product_name }}</td>
+            <td>{{ product.brand }}</td>
             <td>{{ product.market }}</td>
             <td>${{ "%.2f"|format(product.price) }}</td>
+            <td>{{ product.market_group }}</td>
+
         </tr>
         {% endfor %}
     </table>
+
+    {% if pagination %}
+    <!-- Pagination controls -->
+    <div class="pagination">
+        {% if pagination.has_prev %}
+            <a href="{{ url_for('list_products', page=pagination.prev_num) }}">Prev</a>
+        {% endif %}
+        Page {{ pagination.page }} of {{ pagination.pages }}
+        {% if pagination.has_next %}
+            <a href="{{ url_for('list_products', page=pagination.next_num) }}">Next</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
 </body>
 </html>

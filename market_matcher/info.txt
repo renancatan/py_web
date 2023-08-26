@@ -1,6 +1,8 @@
 1) install and activate the virtual venv (CHECK YOUR OS, as it might change):
     a. python -m venv venv
     b. source venv/scripts/activate
+     - Access virtual environment and start flask
+    c. source venv/scripts/activate && python app.py
 
 2) Installing Flask: Inside the virtual environment, install Flask:
 
@@ -82,7 +84,7 @@ with app.app_context():
     db.session.add(milk2)
     db.session.commit()
 
-5) To migrate new model
+5) To migrate new model, when (altering structure)
 a.
 # Add the migrations lib for flask:
 
@@ -102,7 +104,8 @@ b.
 Initializing Migrations:
 Before making any migrations, you need to initialize the migrations directory:
 with the project already running, CLI at the project's root: python app.py
-run in the CLI: flask db init
+run in the CLI: flask db init (only once) ->
+If appear a message "Error: Directory migrations already exists and is not empty" is because you're trying again
 - Initialization: flask db init
 - Migration Creation: flask db migrate -m "some message"
 - Apply Migration: flask db upgrade
