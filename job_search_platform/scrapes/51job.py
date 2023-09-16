@@ -10,7 +10,8 @@ def translate_text(text):
     return translated
 
 df['title_en'] = df['title'].apply(translate_text)
-print(df['title_en'])
+print(df[['title', 'title_en']])
 
 # save df later to another file, in order to translate only once, then makes something to just translate new data
-# makes a df diff between new and old data, choosing some kind of key to match to translate new data only
+# makes a df diff between new and old data, choosing some kind of key to match to tran
+# slate new data only
