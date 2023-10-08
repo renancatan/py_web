@@ -169,7 +169,7 @@ async function run() {
     }
 
     // Save as JSON
-    fs.writeFile('jobsData.json', JSON.stringify(allJobsData, null, 4), (err) => {
+    fs.writeFile('./scrapes/jobsData.json', JSON.stringify(allJobsData, null, 4), (err) => {
         if (err) {
             console.error('Error writing file', err);
         } else {
